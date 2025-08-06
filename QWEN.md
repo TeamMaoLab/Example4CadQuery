@@ -105,19 +105,21 @@ uv add <package> # 添加新依赖
 - **可视化**: 实现 `show()` 函数 3D 查看功能
 - **多模式运行**: 支持导出文件、查看模型、混合模式
 - **模块化**: 创建 app/quickstart 模块，支持导入和直接运行
+- **专题研究准备**: 整理齿轮建模所需的全面文档，合并为 `docs/gears-all-in-one.md`
 
 ### 技术验证
 验证了 CadQuery 核心功能：工作平面、选择器、几何操作、布尔运算、链式调用、参数化设计、多格式导出、3D 可视化。
 
 ### 文件产出
 - **代码**: bearing_block.py、visualization_example.py、__init__.py
-- **文档**: cadquery-official-docs.md、cadquery-concepts.md、QWEN.md、README.md  
+- **文档**: cadquery-official-docs.md、cadquery-concepts.md、build-gears-with-cadquery.md、QWEN.md、README.md  
 - **输出**: bearing_block.stl、.dxf、.step
 
 ### 后续计划
 - 扩展更多官方示例
 - 添加核心功能练习
 - 建立测试用例
+- 按照 `docs/build-gears-with-cadquery.md` 中的计划开展齿轮建模专题，从基础直齿轮开始，并验证其中引用的标准
 
 ## 项目发展变更记录
 
@@ -134,6 +136,7 @@ uv add <package> # 添加新依赖
 - **发现可视化查看方法**: 找到使用 `show()` 函数一行命令打开3D查看窗口的方法，创建可视化示例
 - **增强第一个例子**: 为轴承座示例添加可视化查看支持，提供多种运行模式（导出、查看、同时进行）
 - **完成项目进展总结**: 系统总结已完成的核心工作、技术成果、开发模式验证和后续发展方向，项目已推送到 GitHub
+- **专题研究准备**: 整理齿轮类型和标准概述文档，为后续齿轮建模专题做准备
 
 ---
 
