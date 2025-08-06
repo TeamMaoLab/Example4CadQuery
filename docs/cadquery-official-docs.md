@@ -98,7 +98,24 @@ CadQuery 受 jQuery 启发，具有以下特点：
   - 可视化查看: `uv run app/quickstart/bearing_block.py --view`
   - 同时导出和查看: `uv run app/quickstart/bearing_block.py --both`
   - 模块导入: `from app.quickstart import bearing_block`
-- **新增功能**: 支持 3D 可视化查看，使用 `show()` 函数打开查看窗口
+
+**运用的 CadQuery 能力：**
+- **工作平面 (Workplane)**: 使用 `cq.Workplane("XY")` 创建 2D 工作平面作为建模基础
+- **基础几何体创建**: 使用 `.box()` 方法创建矩形基础板块
+- **选择器系统**: 
+  - `.faces(">Z")` 选择 Z 轴正方向的顶面
+  - `.vertices()` 选择构造矩形的顶点
+  - `.edges("|Z")` 选择所有平行于 Z 轴的边
+- **工作平面切换**: 使用 `.workplane()` 在选定面上创建新的工作平面
+- **孔操作**: 
+  - `.hole()` 创建通孔
+  - `.cboreHole()` 创建沉头孔
+- **构造几何**: 使用 `forConstruction=True` 创建辅助几何体，不参与最终实体
+- **圆角操作**: 使用 `.fillet()` 对选定边进行圆角处理
+- **链式调用**: 通过方法链式调用构建复杂模型，代码简洁易读
+- **参数化设计**: 使用变量控制所有尺寸，便于修改和定制
+- **多格式导出**: 支持 STL、DXF、STEP 三种格式的文件导出
+- **3D 可视化**: 使用 `show()` 函数直接打开 3D 查看窗口
 
 #### 示例 2：可视化查看模型
 - **代码位置**: `app/quickstart/visualization_example.py`
@@ -110,12 +127,33 @@ CadQuery 受 jQuery 启发，具有以下特点：
   ```
 - **运行方式**: `uv run app/quickstart/visualization_example.py`
 
+**运用的 CadQuery 能力：**
+- **球体创建**: 使用 `.sphere()` 方法创建球体几何体
+- **布尔运算**: 
+  - 使用 `.split(keepBottom=True)` 分割球体并保留下半部分
+  - 使用 `-` 操作符进行差集运算，创建壳体结构
+- **选择器应用**: `.faces('>Z')` 选择 Z 轴正方向的面进行圆角处理
+- **圆角操作**: 使用 `.fillet()` 对选定面进行圆角处理
+- **3D 可视化**: 
+  - 使用 `from cadquery.vis import show` 导入可视化模块
+  - 使用 `show(model, alpha=0.5)` 打开 3D 查看窗口，alpha 参数控制透明度
+- **复杂几何体构造**: 通过球体的分割和布尔运算创建复杂的半球壳结构
+- **模块化编程**: 将模型创建逻辑封装在函数中，便于复用和测试
+
 #### 示例 3：简单带孔平板
 ```python
 thickness = 0.5
 width = 2.0
 result = Workplane("front").box(width, width, thickness).faces(">Z").hole(thickness)
 ```
+
+**运用的 CadQuery 能力：**
+- **工作平面定位**: 使用 `Workplane("front")` 在前面创建工作平面
+- **基础几何体**: 使用 `.box()` 创建立方体
+- **选择器操作**: 使用 `.faces(">Z")` 选择顶面
+- **孔操作**: 使用 `.hole()` 在选定面上创建通孔
+- **链式调用**: 单行代码完成从创建到打孔的完整操作
+- **参数化设计**: 使用变量控制尺寸，便于修改
 
 > **提示**: 所有官方示例的详细代码、解析和说明请参考对应的代码文件中的注释。代码文件包含完整的实现、学习要点和使用说明。
 
