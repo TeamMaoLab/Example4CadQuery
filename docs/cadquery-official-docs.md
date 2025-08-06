@@ -85,78 +85,39 @@ CadQuery 受 jQuery 启发，具有以下特点：
 
 ## 4. 官方示例实践
 
-### 示例 1：QuickStart 轴承座（官方第一个例子）
+### QuickStart 示例实现
 
-#### 完整代码
-```python
-import cadquery as cq
+官方 QuickStart 教程中的示例已在本地实现并模块化组织：
 
-# 参数定义
-height = 60.0    # 高度
-width = 80.0     # 宽度
-thickness = 10.0 # 厚度
-diameter = 22.0  # 轴承孔直径
-padding = 12.0   # 边距（孔距离边缘的距离）
-
-# 创建轴承座模型
-result = (
-    cq.Workplane("XY")
-    .box(height, width, thickness)           # 创建基础板块
-    .faces(">Z")                            # 选择顶面
-    .workplane()                            # 在顶面创建工作平面
-    .hole(diameter)                         # 在中心钻轴承孔
-    .faces(">Z")                            # 再次选择顶面
-    .workplane()                            # 创建新的工作平面
-    .rect(height - padding, width - padding, forConstruction=True)  # 绘制构造矩形
-    .vertices()                             # 选择矩形顶点（四个角）
-    .cboreHole(2.4, 4.4, 2.1)              # 在四个角创建沉头孔
-    .edges("|Z")                            # 选择所有平行于Z轴的边
-    .fillet(2.0)                            # 添加圆角
-)
-
-# 导出模型
-cq.exporters.export(result, "bearing_block.stl")
-cq.exporters.export(result.section(), "bearing_block.dxf")
-cq.exporters.export(result, "bearing_block.step")
-```
-
-#### 代码解析
-1. **参数定义**: 使用变量控制模型尺寸，实现参数化设计
-2. **基础板块**: `cq.Workplane("XY").box()` 创建矩形基础
-3. **选择器应用**: 
-   - `.faces(">Z")` 选择顶面
-   - `.vertices()` 选择顶点
-   - `.edges("|Z")` 选择边
-4. **工作平面**: `.workplane()` 在选定面上创建新的工作平面
-5. **构造几何**: `forConstruction=True` 创建辅助几何体
-6. **链式调用**: 通过方法链构建复杂模型
-
-#### 模型特性
-- **尺寸**: 60 x 80 x 10 mm
-- **轴承孔**: 22 mm 直径（适用于 608 轴承）
-- **固定孔**: 四个 M2 沉头孔
-- **圆角**: 2mm 半径边缘圆角
-
-#### 导出格式
-- **STL**: 3D 打印格式
-- **DXF**: 2D CAD 格式
-- **STEP**: 高质量 3D CAD 格式
-
-#### 本地实现
-- **代码模块**: `app/quickstart/bearing_block.py`
-- **模块导入**: `from app.quickstart import bearing_block`
+#### 示例 1：轴承座模型（官方第一个例子）
+- **代码位置**: `app/quickstart/bearing_block.py`
 - **输出文件**: `output/quickstart/` 目录
-- **状态**: ✅ 已成功实现并验证
+- **功能**: 参数化 608 轴承座，包含中心孔、沉头孔和圆角
 - **运行方式**: 
-  - 直接运行: `uv run app/quickstart/bearing_block.py`
-  - 模块导入: `python -m app.quickstart.bearing_block`
+  - 导出文件: `uv run app/quickstart/bearing_block.py`
+  - 可视化查看: `uv run app/quickstart/bearing_block.py --view`
+  - 同时导出和查看: `uv run app/quickstart/bearing_block.py --both`
+  - 模块导入: `from app.quickstart import bearing_block`
+- **新增功能**: 支持 3D 可视化查看，使用 `show()` 函数打开查看窗口
 
-### 示例 2：简单带孔平板
+#### 示例 2：可视化查看模型
+- **代码位置**: `app/quickstart/visualization_example.py`
+- **功能**: 演示如何使用 `show()` 函数直接打开 3D 查看窗口
+- **关键代码**: 
+  ```python
+  from cadquery.vis import show
+  show(model, alpha=0.5)  # alpha 设置透明度
+  ```
+- **运行方式**: `uv run app/quickstart/visualization_example.py`
+
+#### 示例 3：简单带孔平板
 ```python
 thickness = 0.5
 width = 2.0
 result = Workplane("front").box(width, width, thickness).faces(">Z").hole(thickness)
 ```
+
+> **提示**: 所有官方示例的详细代码、解析和说明请参考对应的代码文件中的注释。代码文件包含完整的实现、学习要点和使用说明。
 
 ---
 
