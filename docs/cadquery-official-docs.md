@@ -159,6 +159,205 @@ result = Workplane("front").box(width, width, thickness).faces(">Z").hole(thickn
 
 ---
 
+## 5. 核心概念 (Concepts)
+
+CadQuery 的核心概念已单独整理至 `docs/cadquery-concepts.md` 文件中，以方便查阅。
+
+---
+
+## 6. Workplane 与 Sketch 模块 (简要记录)
+
+由于对 Workplane 和 Sketch 模块的理解尚不深入，此处仅进行简要记录，供后续学习参考。
+
+### 6.1 Workplane (工作平面)
+- **核心作用**: 代表空间中的一个平面，是大多数建模操作的基准。拥有中心点和局部坐标系。
+- **常见用法**:
+  - 作为建模起点 (如 `Workplane("XY")`)。
+  - 通过选择实体上的面来创建新的工作平面 (如 `.faces(">Z").workplane()`)。
+  - 在其上进行 2D 绘图，然后拉伸/旋转等操作生成 3D 特征。
+- **关键概念**:
+  - **The Stack (堆栈)**: 每次操作返回新的 Workplane 对象，形成父子链，可使用 `.end()` 回退。
+  - **Chaining (链式调用)**: 方法返回 Workplane 对象，支持流畅的链式语法。
+  - **The Context Solid (上下文实体)**: 自动跟踪和组合特征到第一个创建的实体上。
+  - **Iteration (迭代)**: 许多方法会自动对堆栈中的每个元素进行操作。
+  - **Selectors (选择器)**: 用于选择顶点、边、面等特征。
+
+### 6.2 Sketch (草图)
+- **核心作用**: 提供更灵活的 2D 草图绘制能力，可与 Workplane 集成用于生成 3D 模型。
+- **主要 API**:
+  - **Face-based API**: 通过构建面并进行布尔运算来创建草图。
+  - **Edge-based API**: 通过绘制线段、圆弧等边来构建草图，最后需 `assemble()`。
+  - **Constraint-based API (实验性)**: 使用几何约束来定义草图。
+- **与 Workplane 集成**:
+  - 可以在 Workplane 链式调用中就地创建草图 (`.sketch()...finalize()`)。
+  - 可以将已创建的草图对象放置到 Workplane 上 (`.placeSketch()`)。
+  - 支持使用草图进行 `extrude`, `revolve`, `sweep`, `cut`, `loft` 等操作。
+- **其他功能**:
+  - 支持凸包 (Convex Hull) 构建 (实验性)。
+  - 支持偏移 (Offset) 操作。
+  - 支持导出和从 DXF 导入。
+
+---
+
+## 7. Assemblies (装配) 模块 (简要记录)
+
+由于对 Assemblies 模块的理解尚不深入，此处仅进行简要记录，供后续学习参考。
+
+### 7.1 核心概念
+- **Assembly 类**: 用于将简单的模型组合成复杂、可能嵌套的装配体。
+- **组成**: 一个装配体由多个子部件 (parts) 组成，每个子部件都有其相对父部件的位置 (`loc`) 和可选的颜色 (`color`)。
+
+### 7.2 基本用法
+- **创建**: `assy = Assembly(part, loc=Location(...), name="part_name")`
+- **添加部件**: `assy.add(part, loc=Location(...), name="child_name", color=Color(...))`
+- **导出**: 支持导出为 STEP 文件或 OCCT XML 格式。
+
+### 7.3 约束 (Constraints)
+- **目的**: 使用约束来定义组件之间的关系，可以创建完全参数化的装配。约束比直接指定位置更灵活，当参数改变时，求解器 (`solve()`) 会自动重新计算部件的最终位置。
+- **常用约束类型**:
+  - **Axis**: 使两个法向量或切向量共线或成指定角度。常用于对齐面。
+  - **Point**: 使两个点（或特征的中心）重合或相距指定距离。
+  - **Plane**: `Axis` 和 `Point` 约束的组合，常用于“贴合”两个面。
+  - **PointInPlane**: 将一个点约束在另一个对象定义的平面内。
+  - **PointOnLine**: 将一个点约束在另一个对象定义的线上。
+  - **FixedPoint**: 固定一个点的位置。
+  - **FixedRotation**: 固定一个对象的旋转角度。
+  - **FixedAxis**: 固定一个对象的法向量或切向量方向。
+- **定义约束**: `assy.constrain("part1@selector1", "part2@selector2", "ConstraintType", param=value)`
+- **求解**: `assy.solve()`
+
+### 7.4 选择器 (Selectors) 与标签 (Tags)
+- 在装配体约束中，选择器的语法类似 `"part_name@faces@>Z"` 或 `"part_name?tag_name"`。
+- 可以在创建部件时使用 `tag()` 方法为特征（如面、边、顶点）添加标签，以便在约束中引用。
+
+---
+
+## 8. CadQuery Cheatsheet 功能速查表
+
+根据 CadQuery 官方 Cheatsheet 整理的主要功能和函数。
+
+### 8.1 3D 建模 (3D Construction)
+
+| 类别 | 函数名 | 简要说明 |
+| :--- | :--- | :--- |
+| **基本体 (Primitives)** | `box(length, width, height)` | 创建长方体 |
+| | `sphere(radius)` | 创建球体 |
+| | `cylinder(height, radius)` | 创建圆柱体 |
+| | `text(txt, fontsize, distance)` | 创建文字形状 |
+| **增料操作 (Additive)** | `extrude(until)` | 拉伸 2D 形状 |
+| | `revolve(angleDegrees)` | 旋转 2D 形状 |
+| | `loft(ruled)` | 放样多个 2D 形状 |
+| | `sweep(path, isFrenet, transitionMode)` | 沿路径扫掠 2D 形状 |
+| | `union(shape)` | 并集操作 |
+| **减料操作 (Subtractive)** | `cutBlind(until)` | 盲切除 3D 形状 |
+| | `cutThruAll()` | 通切除 3D 形状 |
+| | `hole(diameter, depth)` | 创建孔 |
+| | `cut(shape)` | 差集操作 |
+| **修改操作 (Modify)** | `fillet(radius)` | 圆角 |
+| | `chamfer(length)` | 倒角 |
+| | `shell(thickness)` | 抽壳 |
+| | `intersect(shape)` | 交集操作 |
+
+### 8.2 2D 绘图 (2D Construction)
+
+| 函数名 | 简要说明 |
+| :--- | :--- |
+| `rect(xLen, yLen)` | 绘制矩形 |
+| `circle(radius)` | 绘制圆 |
+| `ellipse(x_radius, y_radius)` | 绘制椭圆 |
+| `center(x, y)` | 移动到指定中心点 |
+| `moveTo(x, y)` | 移动到绝对坐标 |
+| `move(xDist, yDist)` | 相对移动 |
+| `lineTo(x, y)` | 绘制直线到指定点 |
+| `line(xDist, yDist)` | 绘制相对直线 |
+| `polarLine(distance, angle)` | 绘制极坐标直线 |
+| `vLine(distance)` | 绘制垂直线 |
+| `hLine(distance)` | 绘制水平线 |
+| `polyline(listOfXYTuple)` | 绘制折线 |
+
+### 8.3 草图 (Sketching)
+
+| 函数名 | 简要说明 |
+| :--- | :--- |
+| `rect(w, h)` | 创建矩形 |
+| `circle(r)` | 创建圆 |
+| `ellipse(a1, a2)` | 创建椭圆 |
+| `trapezoid(w, h, a1)` | 创建梯形 |
+| `regularPolygon(r, n)` | 创建正多边形 |
+| `polygon(pts)` | 创建多边形 |
+| `fillet(d)` | 圆角 |
+| `chamfer(d)` | 倒角 |
+| `finalize()` | 完成草图并返回到 Workplane |
+
+### 8.4 导入/导出 (Import/Export)
+
+| 函数/模块 | 简要说明 |
+| :--- | :--- |
+| `importers.importDXF(path, tol)` | 导入 DXF 文件 |
+| `importers.importStep("path")` | 导入 STEP 文件 |
+| `exporters.export(solid, "path/solid.***")` | 导出模型 (支持 svg, step, stl, amf, vrml, json) |
+
+### 8.5 装配 (Assemblies)
+
+| 函数/类 | 简要说明 |
+| :--- | :--- |
+| `Assembly()` | 创建装配体 |
+| `add(obj, loc, color)` | 添加部件 |
+| `constrain(***)` | 定义约束 |
+| `solve()` | 求解装配 |
+| `save("path/assembly.***")` | 保存装配 (支持 step, xml, gltf, vtkjs, vrml) |
+
+### 8.6 选择器字符串修饰符 (Selector String Modifiers)
+
+| 修饰符 | 说明 | 对应选择器类 |
+| :--- | :--- | :--- |
+| `|` | 平行于指定轴 | `ParallelDirSelector` |
+| `#` | 垂直于指定轴 | `PerpendicularDirSelector` |
+| `+/-` | 指定轴的正/负方向 | `DirectionSelector` |
+| `>` | 指定轴方向的最大值 | `DirectionMinMaxSelector(directionMax=True)` |
+| `<` | 指定轴方向的最小值 | `DirectionMinMaxSelector(directionMax=False)` |
+| `%` | 指定曲线/曲面类型 | `TypeSelector` |
+| **示例** | `.faces(">Z")` 选择 Z 轴正方向的面 |
+
+### 8.7 选择器方法 (Selector Methods)
+
+| 选择器方法 | 对应选择器类 |
+| :--- | :--- |
+| `faces(selector)` | `NearestToPointSelector(pnt)` |
+| `edges(selector)` | `ParallelDirSelector(vector)` |
+| `vertices(selector)` | `PerpendicularDirSelector(vector)` |
+| `solids(selector)` | `DirectionMinMaxSelector(vector)` |
+| `shells(selector)` | `RadiusNthSelector(n)` |
+| | `AndSelector(selector, selector)` |
+| | `SumSelector(selector, selector)` |
+| | `SubtractSelector(selector, selector)` |
+| | `InverseSelector(selector)` |
+
+### 8.8 工作平面定位 (Workplane Positioning)
+
+| 函数名 | 简要说明 |
+| :--- | :--- |
+| `translate(Vector(x, y, z))` | 平移 |
+| `rotateAboutCenter(Vector(x, y, z), angleDegrees)` | 绕中心旋转 |
+| `rotate(Vector(x, y, z), Vector(x, y, z), angleDegrees)` | 绕指定轴旋转 |
+| `workplane(offset, origin)` | 创建新的工作平面 |
+
+### 8.9 命名平面 (Named Planes)
+
+| 名称 | xDir | yDir | zDir |
+| :--- | :--- | :--- | :--- |
+| `XY` | +x | +y | +z |
+| `YZ` | +y | +z | +x |
+| `XZ` | +x | +z | -y |
+| `front` | +x | +y | +z |
+| `back` | -x | +y | -z |
+| `left` | +z | +y | -x |
+| `right` | -z | +y | +x |
+| `top` | +x | -z | +y |
+| `bottom` | +x | +z | -y |
+
+---
+
 **整理日期**: 2025-08-06  
 **最后更新**: 2025-08-06  
 **维护者**: AI助手与人工监督

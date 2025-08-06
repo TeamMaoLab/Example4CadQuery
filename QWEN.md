@@ -70,7 +70,7 @@ Example4CadQuery/
 - 使用CadQuery最佳实践进行CAD建模
 - 用清晰的解释注释复杂的CAD操作
 
-## AI助手指令
+### AI助手指令
 
 ### 在此项目上工作时
 1. **始终先阅读QWEN.md** 然后再进行任何更改
@@ -80,6 +80,7 @@ Example4CadQuery/
 5. **README.md需要保持中英双语**，但QWEN.md仅使用中文
 6. **遵守项目管理办法**，保持docs、app、tests目录结构一致性
 7. **所有规则、规矩、管理办法内容都记录到QWEN.md中**
+8. **快速开始原则**：加载@QWEN.md时不要扫描整个项目，应边看边理解，提高效率
 
 ### 关键命令
 ```bash
@@ -99,7 +100,7 @@ uv add <package> # 添加新依赖
 
 ### 已完成工作
 - **项目结构**: 建立 docs、app、tests、output 目录结构
-- **官方文档**: 整理 CadQuery 核心概念和 vs OpenSCAD 对比
+- **官方文档**: 整理 CadQuery 核心概念、vs OpenSCAD 对比、设计理念、示例实践和功能速查表
 - **示例实现**: 复刻官方 QuickStart 轴承座示例，支持参数化设计
 - **可视化**: 实现 `show()` 函数 3D 查看功能
 - **多模式运行**: 支持导出文件、查看模型、混合模式
@@ -110,7 +111,7 @@ uv add <package> # 添加新依赖
 
 ### 文件产出
 - **代码**: bearing_block.py、visualization_example.py、__init__.py
-- **文档**: cadquery-official-docs.md、QWEN.md、README.md  
+- **文档**: cadquery-official-docs.md、cadquery-concepts.md、QWEN.md、README.md  
 - **输出**: bearing_block.stl、.dxf、.step
 
 ### 后续计划
@@ -126,7 +127,7 @@ uv add <package> # 添加新依赖
 - **制定模块一致性原则**: 要求三个目录在代码模块结构上保持一致
 - **确立测试驱动开发模式**: tests/output目录不纳入git管理
 - **建立规则记录机制**: 所有规则、规矩、管理办法内容记录到QWEN.md中
-- **整理CadQuery官方文档**: 创建统一的官方文档整理文件，包含简介、vs OpenSCAD对比、设计理念和代码示例
+- **整理CadQuery官方文档**: 创建统一的官方文档整理文件，包含简介、vs OpenSCAD对比、设计理念、示例实践和功能速查表
 - **复刻官方QuickStart示例**: 成功创建轴承座模型，导出STL、DXF、STEP三种格式文件
 - **规范文件组织**: 建立output目录结构，将导出文件统一管理，标记官方第一个例子，更新文档记录
 - **建立quickstart代码模块**: 创建app/quickstart模块，实现模块化组织，支持导入和直接运行
