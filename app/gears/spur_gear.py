@@ -138,7 +138,7 @@ class SpurGear:
                 cq_pts.append(cq.Vector(pt[0], pt[1], 0))
         
         return cq_pts
-    
+
     def create_gear(self, bore_diameter=None):
         """
         创建齿轮实体
@@ -208,39 +208,69 @@ def create_spur_gear(module=2.0,
     return gear.create_gear(bore_diameter)
 
 
-# 示例和测试函数
-def simple_gear():
-    """创建简单的示例齿轮"""
-    print("创建简单高精度直齿轮...")
-    
-    gear = create_spur_gear(
-        module=3.0,
-        teeth_number=20,
-        width=5.0,
-        pressure_angle=20.0,
-        clearance_coeff=0.25,
-        backlash=0.0,
-        addendum_coeff=1.0,
-        dedendum_coeff=1.25,
-        bore_diameter=5.0
-    )
-    
-    # 显示信息
-    bbox = gear.val().BoundingBox()
-    print(f"齿轮尺寸: {bbox.xlen:.1f} × {bbox.ylen:.1f} × {bbox.zlen:.1f} mm")
-    print(f"体积: {gear.val().Volume():.0f} mm³")
-    
-    return gear
-
+def print_gear_parameters(gear_obj):
+    """打印齿轮参数信息"""
+    print("\n" + "="*50)
+    print("齿轮参数信息 (符合Wiki标准)")
+    print("="*50)
+    print(f"模数 m = {gear_obj.m:.2f} mm")
+    print(f"齿数 z = {gear_obj.z}")
+    print(f"压力角 α = {np.degrees(gear_obj.a0):.1f}°")
+    print(f"齿距 p = πm = {gear_obj.p:.3f} mm")
+    print("-"*50)
+    print("几何尺寸:")
+    print(f"分度圆直径 d = mz = {gear_obj.d:.2f} mm")
+    print(f"齿顶高 ha = {gear_obj.addendum_coeff}m = {gear_obj.ha:.2f} mm")
+    print(f"齿根高 hf = {gear_obj.dedendum_coeff}m = {gear_obj.hf:.2f} mm")
+    print(f"全齿高 h = ha + hf = {gear_obj.h:.2f} mm")
+    print(f"顶隙 c = {gear_obj.clearance_coeff}m = {gear_obj.c:.2f} mm")
+    print(f"工作齿高 hw = 2.00m = {2.0 * gear_obj.m:.2f} mm")
+    print("-"*50)
+    print("圆直径:")
+    print(f"齿顶圆直径 da = d + 2ha = {gear_obj.da:.2f} mm")
+    print(f"齿根圆直径 df = d - 2hf = {gear_obj.df:.2f} mm")
+    print(f"基圆直径 db = d·cos(α) = {gear_obj.rb * 2:.2f} mm")
+    print("-"*50)
+    print("圆半径:")
+    print(f"分度圆半径 r = {gear_obj.r:.2f} mm")
+    print(f"齿顶圆半径 ra = {gear_obj.ra:.2f} mm")
+    print(f"齿根圆半径 rf = {gear_obj.rf:.2f} mm")
+    print(f"基圆半径 rb = {gear_obj.rb:.2f} mm")
+    print("="*50)
 
 
 if __name__ == "__main__":
     # 运行示例
-    gear = simple_gear()
+    gear_obj = SpurGear(
+        # 模数 (mm) - 决定齿轮大小，增大则整体尺寸增大，承载能力增强
+        2.0,
+
+        # 齿数 - 影响传动比和平稳性，增多则传动更平稳，单齿承载减小
+        20,
+
+        # 齿宽 (mm) - 影响齿轮强度和接触面积，增宽则强度提高，但重量增加, 也可以理解为直齿轮的厚度
+        3.0,
+
+        # 压力角 (°) - 影响齿形和传动性能，增大则齿根强度提高，但传动效率略降
+        20.0,
+
+        # 顶隙系数 - 保证啮合间隙，增大则啮合更宽松，但传动精度降低
+        0.5,
+
+        # 齿侧间隙 (mm) - 防止卡死的热膨胀间隙，增大则传动有回差，但不易卡死
+        0.0,
+
+        # 齿顶高系数 - 标准值为1.0，增大则齿顶变尖，强度可能降低
+        1.0,
+
+        # 齿根高系数 - 标准值为1.25，增大则齿根加深，强度提高但加工困难
+        1.25)
+
+    print_gear_parameters(gear_obj)
     
     # 尝试显示
     try:
-        show_object(gear)
-        print("齿轮已显示")
+        show_object(gear_obj.create_gear())
+        print("\n3D模型已显示")
     except:
         print("无法显示3D模型")
