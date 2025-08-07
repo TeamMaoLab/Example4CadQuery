@@ -44,6 +44,8 @@
 
 ## 2. 齿轮设计原理与参数详解
 
+![wiki](https://upload.wikimedia.org/wikipedia/commons/thumb/2/28/Gear_words.png/600px-Gear_words.png)
+
 ### 2.1 齿轮基本概念与术语
 
 - **齿数 (z)**: 一个齿轮的轮齿总数。

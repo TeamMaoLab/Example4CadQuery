@@ -210,14 +210,14 @@ def create_spur_gear(module=2.0,
 
 def print_gear_parameters(gear_obj):
     """打印齿轮参数信息"""
-    print("\n" + "="*50)
+    print("\n" + "="*60)
     print("齿轮参数信息 (符合Wiki标准)")
-    print("="*50)
+    print("="*60)
     print(f"模数 m = {gear_obj.m:.2f} mm")
     print(f"齿数 z = {gear_obj.z}")
     print(f"压力角 α = {np.degrees(gear_obj.a0):.1f}°")
     print(f"齿距 p = πm = {gear_obj.p:.3f} mm")
-    print("-"*50)
+    print("-"*60)
     print("几何尺寸:")
     print(f"分度圆直径 d = mz = {gear_obj.d:.2f} mm")
     print(f"齿顶高 ha = {gear_obj.addendum_coeff}m = {gear_obj.ha:.2f} mm")
@@ -225,18 +225,48 @@ def print_gear_parameters(gear_obj):
     print(f"全齿高 h = ha + hf = {gear_obj.h:.2f} mm")
     print(f"顶隙 c = {gear_obj.clearance_coeff}m = {gear_obj.c:.2f} mm")
     print(f"工作齿高 hw = 2.00m = {2.0 * gear_obj.m:.2f} mm")
-    print("-"*50)
+    print("-"*60)
     print("圆直径:")
     print(f"齿顶圆直径 da = d + 2ha = {gear_obj.da:.2f} mm")
     print(f"齿根圆直径 df = d - 2hf = {gear_obj.df:.2f} mm")
     print(f"基圆直径 db = d·cos(α) = {gear_obj.rb * 2:.2f} mm")
-    print("-"*50)
+    print("-"*60)
     print("圆半径:")
     print(f"分度圆半径 r = {gear_obj.r:.2f} mm")
     print(f"齿顶圆半径 ra = {gear_obj.ra:.2f} mm")
     print(f"齿根圆半径 rf = {gear_obj.rf:.2f} mm")
     print(f"基圆半径 rb = {gear_obj.rb:.2f} mm")
-    print("="*50)
+    print("-"*60)
+    print("重要计算说明:")
+    print(f"实际齿根半径 rr = max(rb, rf) = {gear_obj.rr:.2f} mm")
+    
+    # 分析基圆和齿根圆的关系
+    if gear_obj.rb > gear_obj.rf:
+        print("⚠️  基圆半径 > 齿根圆半径")
+        print("   说明：渐开线从基圆开始生成，实际齿轮基体使用基圆半径")
+        print("   影响：调整齿根高系数对齿轮外形影响有限")
+        print(f"   差值：rb - rf = {gear_obj.rb - gear_obj.rf:.2f} mm")
+        print("   建议：如需齿根高系数更明显影响，可")
+        print("         1. 增大齿数（减小基圆）")
+        print("         2. 增大压力角（减小基圆）")
+        print("         3. 减小齿根高系数")
+    else:
+        print("✅ 齿根圆半径 ≥ 基圆半径")
+        print("   说明：实际齿轮基体使用齿根圆半径")
+        print("   影响：调整齿根高系数会直接影响齿轮外形")
+        print(f"   差值：rf - rb = {gear_obj.rf - gear_obj.rb:.2f} mm")
+    
+    # 计算临界点
+    critical_teeth = int(2 * gear_obj.addendum_coeff / (1 - np.cos(gear_obj.a0)))
+    print(f"\n临界齿数分析：")
+    print(f"当前齿数 z = {gear_obj.z}")
+    print(f"临界齿数（rf=rb）z_critical ≈ {critical_teeth}")
+    if gear_obj.z < critical_teeth:
+        print("⚠️  齿数较少，基圆 > 齿根圆")
+    else:
+        print("✅ 齿数充足，齿根圆 ≥ 基圆")
+    
+    print("="*60)
 
 
 if __name__ == "__main__":
@@ -244,25 +274,18 @@ if __name__ == "__main__":
     gear_obj = SpurGear(
         # 模数 (mm) - 决定齿轮大小，增大则整体尺寸增大，承载能力增强
         2.0,
-
         # 齿数 - 影响传动比和平稳性，增多则传动更平稳，单齿承载减小
-        20,
-
+        40,
         # 齿宽 (mm) - 影响齿轮强度和接触面积，增宽则强度提高，但重量增加, 也可以理解为直齿轮的厚度
         3.0,
-
         # 压力角 (°) - 影响齿形和传动性能，增大则齿根强度提高，但传动效率略降
         20.0,
-
         # 顶隙系数 - 保证啮合间隙，增大则啮合更宽松，但传动精度降低
         0.5,
-
         # 齿侧间隙 (mm) - 防止卡死的热膨胀间隙，增大则传动有回差，但不易卡死
         0.0,
-
         # 齿顶高系数 - 标准值为1.0，增大则齿顶变尖，强度可能降低
         1.0,
-
         # 齿根高系数 - 标准值为1.25，增大则齿根加深，强度提高但加工困难
         1.25)
 
